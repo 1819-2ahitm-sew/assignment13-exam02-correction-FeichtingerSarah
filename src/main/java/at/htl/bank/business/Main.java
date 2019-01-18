@@ -23,7 +23,8 @@ public class Main {
   static final String BUCHUNGSDATEI = "buchungen.csv";
   static final String ERGEBNISDATEI = "ergebnis.csv";
 
-  
+  static ArrayList <BankKonto> konten = new ArrayList<BankKonto>();
+
   /**
    * Führen Sie die drei Methoden erstelleKonten, fuehreBuchungenDurch und
    * findKontoPerName aus
@@ -31,7 +32,9 @@ public class Main {
    * @param args
    */
   public static void main(String[] args) {
-
+    erstelleKonten(KONTENDATEI);
+    fuehreBuchungenDurch(BUCHUNGSDATEI);
+    schreibeKontostandInDatei(ERGEBNISDATEI);
   }
 
   /**
@@ -46,7 +49,26 @@ public class Main {
    */
   private static void erstelleKonten(String datei) {
 
-        System.out.println("erstelleKonten noch nicht implementiert");
+        try (Scanner scanner = new Scanner(new FileReader(datei))) {
+          scanner.nextLine();
+          while (scanner.hasNextLine())
+          {
+            String [] helper = scanner.nextLine().split(";");
+
+            if (helper[0].equals("Sparkonto"))
+            {
+              konten.add(new SparKonto(helper[1], ZINSSATZ, Double.valueOf(helper[2])));
+            }
+            else
+            {
+              konten.add(new GiroKonto(helper[1], Double.valueOf(helper[2]), GEBUEHR));
+            }
+          }
+        }
+        catch (FileNotFoundException e) {
+          System.out.println(e.getMessage());
+        }
+    System.out.println("Erstellung der Konten beendet");
   }
 
   /**
