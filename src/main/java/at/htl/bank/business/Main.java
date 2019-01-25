@@ -86,7 +86,23 @@ public class Main {
    * @param datei BUCHUNGSDATEI
    */
   private static void fuehreBuchungenDurch(String datei) {
-        System.out.println("fuehreBuchungenDurch noch nicht implementiert");
+    try (Scanner scanner = new Scanner(new FileReader(datei))) {
+      scanner.nextLine();
+      while (scanner.hasNextLine())
+      {
+        String [] zeile = scanner.nextLine().split(";");
+        BankKonto person1 = findeKontoPerName(zeile[0]);
+        BankKonto person2 = findeKontoPerName(zeile[1]);
+
+        person1.abheben(Double.parseDouble(zeile[2]));
+        person2.einzahlen(Double.parseDouble(zeile[2]));
+      }
+    }
+    catch (FileNotFoundException e) {
+      System.out.println(e.getMessage());
+    }
+
+        System.out.println("Buchung der Beträge beendet");
   }
 
   /**
@@ -109,7 +125,24 @@ public class Main {
    * @param datei ERGEBNISDATEI
    */
   private static void schreibeKontostandInDatei(String datei) {
-        System.out.println("schreibeKontostandInDatei noch nicht implementiert");
+        try(PrintWriter writer = new PrintWriter(new FileWriter(datei))) {
+          writer.println("name;kontotyp;kontostand");
+          for (int i = 0; i < konten.size(); i++) {
+            if (konten.get(i) instanceof SparKonto)
+            {
+              ((SparKonto) konten.get(i)).zinsenAnrechnen();
+              writer.println(konten.get(i).getName() + ";SparKonto;" + konten.get(i).getKontoStand());
+            }
+            else
+            {
+              writer.println(konten.get(i).getName() + ";GiroKonto;" + konten.get(i).getKontoStand());
+            }
+          }
+        }
+        catch (IOException e) {
+          System.err.println(e.getMessage());
+        }
+    System.out.println("Ausgabe in Ergebnisdatei beendet");
   }
 
   /**
@@ -122,7 +155,14 @@ public class Main {
    *         nicht gefunden wird
    */
   public static BankKonto findeKontoPerName(String name) {
-       return null;
+    for (BankKonto p : konten)
+    {
+      if (p.getName().equals(name))
+      {
+        return p;
+      }
+    }
+    return null;
   }
 
 }
